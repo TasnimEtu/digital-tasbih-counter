@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A lightweight Digital Tasbih Counter desktop application",
   "author": "Tasnim Etu <tasnim@example.com>",
+  "homepage": "https://tasnimetu.github.io/digital-tasbih-counter/",
   "main": "main.js",
   "scripts": {
     "build:win": "electron-builder --win",
@@ -13,7 +14,10 @@
     "appId": "com.tasnim.tasbih",
     "productName": "Digital Tasbih",
     "win": { "target": "nsis" },
-    "linux": { "target": ["deb", "AppImage"] },
+    "linux": {
+      "target": ["deb", "AppImage"],
+      "category": "Utility"
+    },
     "mac": { "target": "dmg" }
   },
   "devDependencies": {

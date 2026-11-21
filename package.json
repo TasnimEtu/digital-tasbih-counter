@@ -1,0 +1,33 @@
+{
+  "name": "digital-tasbih",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "build:mac": "electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.tasnim.tasbih",
+    "productName": "Digital Tasbih",
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ]
+    },
+    "mac": {
+      "target": "dmg"
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.4.1",
+    "electron-builder": "^26.18.0"
+  },
+  "allowScripts": {
+    "electron@45.4.1": true
+  }
+}

@@ -1,228 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Digital Tasbih</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f4f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .card {
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      width: 340px;
-      text-align: center;
-    }
-    select, input {
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      font-size: 14px;
-      margin: 5px 0;
-    }
-    .zikr-display {
-      font-size: 24px;
-      font-weight: bold;
-      color: #0f766e;
-      margin: 10px 0 5px;
-    }
-    /* Visual Progress Bar (Feature 3) */
-    .progress-bg {
-      width: 100%;
-      height: 8px;
-      background: #e2e8f0;
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 10px 0;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: #10b981;
-      transition: width 0.2s;
-    }
-    .count-box {
-      font-size: 56px;
-      font-weight: bold;
-      color: #1e293b;
-      margin: 10px 0;
-    }
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      background: #f8fafc;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #475569;
-      margin-bottom: 15px;
-    }
-    button {
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.1s;
-    }
-    button:active { transform: scale(0.96); }
-    .btn-count {
-      width: 100%;
-      padding: 18px;
-      font-size: 20px;
-      background: #0f766e;
-      color: white;
-      margin-bottom: 10px;
-    }
-    .controls {
-      display: flex;
-      gap: 8px;
-    }
-    .controls button {
-      flex: 1;
-      padding: 10px;
-      background: #e2e8f0;
-      color: #334155;
-    }
+    body { margin: 0; height: 100vh; display: grid; place-items: center; background: #fff; color: #fff; font-family: sans-serif; text-align: center; }
+    #salam { position: fixed; inset: 0; background: #052618; display: grid; place-content: center; gap: 15px; }
+    .box { background: #135e3d; border: 2px solid #52b788; padding: 20px; border-radius: 20px; width: 240px; }
+    select, input { background: #052618; color: #95d5b2; border: 1px solid #52b788; border-radius: 5px; padding: 4px; margin-top: 8px; }
+    progress { width: 100%; margin-top: 8px; }
+    #countBox { font-size: 48px; background: #052618; color: #95d5b2; padding: 8px; border-radius: 10px; margin: 10px 0; }
+    button { border: none; border-radius: 10px; padding: 9px 14px; font-weight: bold; cursor: pointer; }
+    .bigBtn { width: 85px; height: 85px; border-radius: 50%; background: #52b788; color: #052618; font-size: 16px; margin: 10px 0; }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <!-- Feature 2: Zikr Presets -->
-  <select id="zikrSelect" onchange="changeZikr()">
-    <option value="سُبْحَانَ اللَّهِ (SubhanAllah)">SubhanAllah (সুবহানাল্লাহ)</option>
-    <option value="الْحَمْدُ لِلَّهِ (Alhamdulillah)">Alhamdulillah (আলহামদুলিল্লাহ)</option>
-    <option value="اللَّهُ أَكْبَرُ (Allahu Akbar)">Allahu Akbar (আল্লাহু আকবার)</option>
-    <option value="أَسْتَغْفِرُ اللَّهَ (Astaghfirullah)">Astaghfirullah (আস্তাগফিরুল্লাহ)</option>
-  </select>
-
-  <div>
-    Target: <input type="number" id="targetInput" value="33" min="1" style="width: 65px;" onchange="updateUI()">
+  <!-- welcome screen -->
+  <div id="salam">
+    <h1>السَّلَامُ عَلَيْكُمْ</h1>
+    <button style="background: #52b788;" onclick="salam.style.display='none'">Start</button>
   </div>
 
-  <div class="zikr-display" id="zikrText">سُبْحَانَ اللَّهِ (SubhanAllah)</div>
+  <!-- main tasbih box -->
+  <div class="box">
+    <b>DIGITAL TASBIH ☪</b><br>
 
-  <!-- Feature 3: Visual Progress -->
-  <div class="progress-bg"><div class="progress-fill" id="progressBar"></div></div>
+    <!-- dowa list and add folder button -->
+    <select id="dowaList" onchange="showData()"></select>
+    <button style="background: #52b788; padding: 4px 8px;" onclick="makeFolder()">+</button><br>
 
-  <!-- Feature 1: Main Count -->
-  <div class="count-box" id="countDisplay">0</div>
+    <!-- target and progress bar -->
+    Target: <input id="targetBox" type="number" value="33" style="width: 45px;" onchange="showData()">
+    <progress id="bar" value="0" max="33"></progress>
 
-  <!-- Feature 1 & 5: Rounds, Today & Total Stats -->
-  <div class="stats">
-    <span>Rounds: <b id="roundDisplay">0</b></span>
-    <span>Today: <b id="todayDisplay">0</b></span>
-    <span>Total: <b id="totalDisplay">0</b></span>
+    <!-- numbers -->
+    <div id="countBox">0</div>
+    <small>Rounds: <b id="roundBox">0</b> | Total: <b id="totalBox">0</b></small><br>
+
+    <!-- buttons -->
+    <button class="bigBtn" onclick="plusOne()">COUNT</button><br>
+    <button style="background: #2d6a4f; color: #fff;" onclick="minusOne()">-1</button>
+    <button style="background: #1b4332; color: #b7e4c7;" onclick="resetNow()">Reset</button>
   </div>
 
-  <button class="btn-count" onclick="increment()">COUNT (+1)</button>
+  <script>
+    // hide welcome screen after 2 seconds
+    setTimeout(function() { salam.style.display = "none"; }, 2000);
 
-  <div class="controls">
-    <button onclick="decrement()">-1</button>
-    <button onclick="resetCurrent()">Reset</button>
-    <button id="soundBtn" onclick="toggleSound()">Sound: ON</button>
-  </div>
-</div>
-
-<script>
-  // Feature 1 & 5: Load saved data from localStorage (Auto-Save)
-  const todayDate = new Date().toLocaleDateString();
-  let data = JSON.parse(localStorage.getItem('tasbihData')) || {
-    count: 0, rounds: 0, total: 0, today: 0, date: todayDate, sound: true
-  };
-
-  // Reset today's count if it's a new day
-  if (data.date !== todayDate) {
-    data.today = 0;
-    data.date = todayDate;
-  }
-
-  // Feature 3: Built-in Sound Generator (No external mp3 needed)
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  function playBeep(freq, duration) {
-    if (!data.sound) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.frequency.value = freq;
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-    osc.stop(audioCtx.currentTime + duration);
-  }
-
-  // Main Increment Logic
-  function increment() {
-    const target = parseInt(document.getElementById('targetInput').value) || 33;
-    data.count++;
-    data.today++;
-    data.total++;
-
-    if (data.count >= target) {
-      data.rounds++;
-      data.count = 0; // Reset for next round
-      playBeep(880, 0.3); // High bell sound on target complete
-    } else {
-      playBeep(400, 0.06); // Soft click sound
+    // load saved data or start new
+    var db = JSON.parse(localStorage.getItem("myTasbih"));
+    if (db == null) {
+      db = {
+        "Home": { count: 0, rounds: 0, total: 0 },
+        "SubhanAllah": { count: 0, rounds: 0, total: 0 },
+        "Alhamdulillah": { count: 0, rounds: 0, total: 0 }
+      };
     }
-    saveAndUpdate();
-  }
 
-  // Undo / Minus 1 (-1)
-  function decrement() {
-    if (data.count > 0) {
-      data.count--;
-      data.today = Math.max(0, data.today - 1);
-      data.total = Math.max(0, data.total - 1);
-      saveAndUpdate();
+    // add dowa names to dropdown
+    for (var name in db) {
+      dowaList.add(new Option(name, name));
     }
-  }
 
-  function resetCurrent() {
-    data.count = 0;
-    data.rounds = 0;
-    saveAndUpdate();
-  }
+    // make new dowa folder
+    function makeFolder() {
+      var newName = prompt("Enter new Dowa name:");
+      if (newName) {
+        db[newName] = { count: 0, rounds: 0, total: 0 };
+        dowaList.add(new Option(newName, newName));
+        dowaList.value = newName;
+        saveData();
+      }
+    }
 
-  function changeZikr() {
-    document.getElementById('zikrText').innerText = document.getElementById('zikrSelect').value;
-    resetCurrent();
-  }
+    // add 1
+    function plusOne() {
+      var d = db[dowaList.value];
+      d.count = d.count + 1;
+      d.total = d.total + 1;
 
-  function toggleSound() {
-    data.sound = !data.sound;
-    saveAndUpdate();
-  }
+      if (d.count >= targetBox.value) {
+        d.rounds = d.rounds + 1;
+        d.count = 0;
+        alert("Target Completed!");
+      }
+      saveData();
+    }
 
-  function saveAndUpdate() {
-    localStorage.setItem('tasbihData', JSON.stringify(data));
-    updateUI();
-  }
+    // minus 1
+    function minusOne() {
+      var d = db[dowaList.value];
+      if (d.count > 0) {
+        d.count = d.count - 1;
+        d.total = d.total - 1;
+        saveData();
+      }
+    }
 
-  function updateUI() {
-    const target = parseInt(document.getElementById('targetInput').value) || 33;
-    document.getElementById('countDisplay').innerText = data.count;
-    document.getElementById('roundDisplay').innerText = data.rounds;
-    document.getElementById('todayDisplay').innerText = data.today;
-    document.getElementById('totalDisplay').innerText = data.total;
-    document.getElementById('soundBtn').innerText = data.sound ? "Sound: ON" : "Sound: OFF";
-    
-    // Update progress bar width
-    const percent = Math.min(100, (data.count / target) * 100);
-    document.getElementById('progressBar').style.width = percent + "%";
-  }
+    // reset count and rounds
+    function resetNow() {
+      var d = db[dowaList.value];
+      d.count = 0;
+      d.rounds = 0;
+      saveData();
+    }
 
-  updateUI(); // Initialize UI on load
-</script>
+    // save and show numbers
+    function saveData() {
+      localStorage.setItem("myTasbih", JSON.stringify(db));
+      showData();
+    }
+
+    function showData() {
+      var d = db[dowaList.value];
+      countBox.innerText = d.count;
+      roundBox.innerText = d.rounds;
+      totalBox.innerText = d.total;
+      bar.max = targetBox.value;
+      bar.value = d.count;
+    }
+
+    showData();
+  </script>
 
 </body>
 </html>

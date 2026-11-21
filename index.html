@@ -3,125 +3,126 @@
 <head>
   <title>Digital Tasbih</title>
   <style>
-    body { margin: 0; height: 100vh; display: grid; place-items: center; background: #fff; color: #fff; font-family: sans-serif; text-align: center; }
-    #salam { position: fixed; inset: 0; background: #052618; display: grid; place-content: center; gap: 15px; }
-    .box { background: #135e3d; border: 2px solid #52b788; padding: 20px; border-radius: 20px; width: 240px; }
-    select, input { background: #052618; color: #95d5b2; border: 1px solid #52b788; border-radius: 5px; padding: 4px; margin-top: 8px; }
-    progress { width: 100%; margin-top: 8px; }
-    #countBox { font-size: 48px; background: #052618; color: #95d5b2; padding: 8px; border-radius: 10px; margin: 10px 0; }
-    button { border: none; border-radius: 10px; padding: 9px 14px; font-weight: bold; cursor: pointer; }
-    .bigBtn { width: 85px; height: 85px; border-radius: 50%; background: #52b788; color: #052618; font-size: 16px; margin: 10px 0; }
+    body { margin: 0; height: 100vh; display: grid; place-items: center; background: #081126; color: #f3d078; font-family: sans-serif; text-align: center; }
+    #startScreen { position: fixed; inset: 0; background: #081126; display: grid; place-content: center; gap: 15px; }
+    .box { background: #0e1a36; border: 2px solid #d4af37; padding: 20px; border-radius: 20px; width: 250px; }
+    select, input { background: #081126; color: #f3d078; border: 1px solid #d4af37; border-radius: 6px; padding: 4px; margin-top: 8px; }
+    progress { width: 100%; margin-top: 8px; accent-color: #d4af37; }
+    #countBox { font-size: 48px; background: #081126; border: 1px solid #d4af37; padding: 8px; border-radius: 12px; margin: 10px 0; }
+    button { border: none; border-radius: 10px; padding: 8px 14px; font-weight: bold; cursor: pointer; background: #d4af37; color: #081126; }
   </style>
 </head>
 <body>
 
-  <!-- welcome screen -->
-  <div id="salam">
-    <h1>السَّلَامُ عَلَيْكُمْ</h1>
-    <button style="background: #52b788;" onclick="salam.style.display='none'">Start</button>
+  <!-- Bismillah Screen -->
+  <div id="startScreen">
+    <h1>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</h1>
+    <button onclick="startScreen.style.display='none'">Start</button>
   </div>
 
-  <!-- main tasbih box -->
+  <!-- Main Tasbih Box -->
   <div class="box">
     <b>DIGITAL TASBIH ☪</b><br>
 
-    <!-- dowa list and add folder button -->
     <select id="dowaList" onchange="showData()"></select>
-    <button style="background: #52b788; padding: 4px 8px;" onclick="makeFolder()">+</button><br>
+    <button onclick="addDowa()">+</button>
+    <button onclick="delDowa()">-</button><br>
 
-    <!-- target and progress bar -->
-    Target: <input id="targetBox" type="number" value="33" style="width: 45px;" onchange="showData()">
+    <h3 id="arbiView" style="margin: 10px 0;">سُبْحَانَ اللَّهِ</h3>
+
+    Target: <input id="targetBox" type="number" min="1" value="33" style="width: 45px;" onchange="setTarget()">
     <progress id="bar" value="0" max="33"></progress>
 
-    <!-- numbers -->
+    <div id="msg" style="height: 18px; font-size: 13px;"></div>
     <div id="countBox">0</div>
-    <small>Rounds: <b id="roundBox">0</b> | Total: <b id="totalBox">0</b></small><br>
+    <small>Rounds: <b id="roundBox">0</b> | Total: <b id="totalBox">0</b></small><br><br>
 
-    <!-- buttons -->
-    <button class="bigBtn" onclick="plusOne()">COUNT</button><br>
-    <button style="background: #2d6a4f; color: #fff;" onclick="minusOne()">-1</button>
-    <button style="background: #1b4332; color: #b7e4c7;" onclick="resetNow()">Reset</button>
+    <button style="width: 100%; padding: 14px; font-size: 16px;" onclick="addCount()">TAP TO COUNT</button><br><br>
+    <button onclick="minusCount()">-1</button>
+    <button onclick="resetCount()">Reset</button>
   </div>
 
   <script>
-    // hide welcome screen after 2 seconds
-    setTimeout(function() { salam.style.display = "none"; }, 2000);
+    setTimeout(function() { startScreen.style.display = "none"; }, 2500);
 
-    // load saved data or start new
-    var db = JSON.parse(localStorage.getItem("myTasbih"));
+    var db = JSON.parse(localStorage.getItem("myTasbihSimple"));
     if (db == null) {
       db = {
-        "Home": { count: 0, rounds: 0, total: 0 },
-        "SubhanAllah": { count: 0, rounds: 0, total: 0 },
-        "Alhamdulillah": { count: 0, rounds: 0, total: 0 }
+        "SubhanAllah": { ar: "سُبْحَانَ اللَّهِ", count: 0, rounds: 0, total: 0, target: 33 },
+        "Alhamdulillah": { ar: "الْحَمْدُ لِلَّهِ", count: 0, rounds: 0, total: 0, target: 33 },
+        "Allahu Akbar": { ar: "اللَّهُ أَكْبَرُ", count: 0, rounds: 0, total: 0, target: 34 }
       };
     }
 
-    // add dowa names to dropdown
-    for (var name in db) {
-      dowaList.add(new Option(name, name));
+    for (var name in db) { dowaList.add(new Option(name, name)); }
+
+    var audio = new AudioContext();
+    function tikSound() {
+      var beep = audio.createOscillator();
+      beep.frequency.value = 1200;
+      beep.connect(audio.destination);
+      beep.start();
+      beep.stop(audio.currentTime + 0.015);
     }
 
-    // make new dowa folder
-    function makeFolder() {
-      var newName = prompt("Enter new Dowa name:");
-      if (newName) {
-        db[newName] = { count: 0, rounds: 0, total: 0 };
-        dowaList.add(new Option(newName, newName));
-        dowaList.value = newName;
-        saveData();
+    function addDowa() {
+      var name = prompt("Enter Dowa Name:");
+      if (name) {
+        var arbi = prompt("Enter Arabic (Optional):") || name;
+        db[name] = { ar: arbi, count: 0, rounds: 0, total: 0, target: 33 };
+        dowaList.add(new Option(name, name));
+        dowaList.value = name;
+        save();
       }
     }
 
-    // add 1
-    function plusOne() {
+    function delDowa() {
+      if (dowaList.value == "SubhanAllah") { msg.innerText = "Cannot delete!"; return; }
+      delete db[dowaList.value];
+      dowaList.remove(dowaList.selectedIndex);
+      save();
+    }
+
+    function setTarget() {
+      var val = parseInt(targetBox.value);
+      if (val < 1 || isNaN(val)) { val = 1; }
+      db[dowaList.value].target = val;
+      save();
+    }
+
+    function addCount() {
+      tikSound();
+      msg.innerText = "";
       var d = db[dowaList.value];
       d.count = d.count + 1;
       d.total = d.total + 1;
-
-      if (d.count >= targetBox.value) {
-        d.rounds = d.rounds + 1;
-        d.count = 0;
-        alert("Target Completed!");
-      }
-      saveData();
+      if (d.count >= d.target) { d.rounds = d.rounds + 1; d.count = 0; msg.innerText = "Completed!"; }
+      save();
     }
 
-    // minus 1
-    function minusOne() {
+    function minusCount() {
       var d = db[dowaList.value];
-      if (d.count > 0) {
-        d.count = d.count - 1;
-        d.total = d.total - 1;
-        saveData();
-      }
+      if (d.count > 0) { d.count = d.count - 1; d.total = d.total - 1; save(); }
     }
 
-    // reset count and rounds
-    function resetNow() {
+    function resetCount() {
       var d = db[dowaList.value];
-      d.count = 0;
-      d.rounds = 0;
-      saveData();
+      d.count = 0; d.rounds = 0; msg.innerText = "Reset!"; save();
     }
 
-    // save and show numbers
-    function saveData() {
-      localStorage.setItem("myTasbih", JSON.stringify(db));
-      showData();
-    }
+    function save() { localStorage.setItem("myTasbihSimple", JSON.stringify(db)); showData(); }
 
     function showData() {
       var d = db[dowaList.value];
+      arbiView.innerText = d.ar;
       countBox.innerText = d.count;
       roundBox.innerText = d.rounds;
       totalBox.innerText = d.total;
-      bar.max = targetBox.value;
+      targetBox.value = d.target;
+      bar.max = d.target;
       bar.value = d.count;
     }
-
     showData();
   </script>
-
 </body>
 </html>
